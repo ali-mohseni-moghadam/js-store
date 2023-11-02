@@ -13,4 +13,15 @@ const postData = async (path, data) => {
     alert("An error occured!");
   }
 };
-export { postData };
+
+const getData = async (path) => {
+  try {
+    const respone = await fetch(`${BASE_URL}/${path}`);
+    const json = await respone.json();
+    return json;
+  } catch (error) {
+    // alert("An error occurd");
+  }
+};
+
+export { postData, getData };
