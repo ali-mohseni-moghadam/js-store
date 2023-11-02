@@ -2,11 +2,18 @@ import { getCookie } from "./utils/cookie.js";
 import { getData } from "./utils/httpReq.js";
 import shortenText from "./utils/stringFunction.js";
 
+let allProducts = null;
+let search = "";
+let category = "all";
+
 const loginButton = document.querySelector("#login");
 const dashButton = document.querySelector("#dashboard");
 const mainContent = document.querySelector("#products");
+const searchButton = document.querySelector("button");
+const searchInput = document.querySelector("input");
+const listItems = document.querySelectorAll("li");
 
-const showProducts = (products) => {
+const renderProducts = (products) => {
   mainContent.innerHTML = "";
 
   products.forEach((product) => {
@@ -45,8 +52,45 @@ const init = async () => {
     dashButton.style.display = "none";
   }
 
-  const allProducts = await getData("products");
-  showProducts(allProducts);
+  allProducts = await getData("products");
+  renderProducts(allProducts);
+};
+
+const filterProducts = () => {
+  const filteredProducts = allProducts.filter((product) => {
+    if (category === "all") {
+      return product.title.toLowerCase().includes(search);
+    } else {
+      return (
+        product.title.toLowerCase().includes(search) &&
+        product.category.toLowerCase() === category
+      );
+    }
+  });
+
+  renderProducts(filteredProducts);
+};
+
+const searchHandler = () => {
+  search = searchInput.value.trim().toLowerCase();
+
+  filterProducts(search);
+};
+
+const filterHandler = (event) => {
+  category = event.target.innerText.toLowerCase();
+
+  listItems.forEach((li) => {
+    if (li.innerText.toLowerCase() === category) {
+      li.className = "selected";
+    } else {
+      li.className = "";
+    }
+  });
+
+  filterProducts(category);
 };
 
 document.addEventListener("DOMContentLoaded", init);
+searchButton.addEventListener("click", searchHandler);
+listItems.forEach((li) => li.addEventListener("click", filterHandler));
